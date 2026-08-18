@@ -30,7 +30,7 @@ Options parseOptions(int argc, char* argv[]) {
         }
         else if (strcmp(argv[i],"-t") == 0) {
             sscanf(argv[i+1],"%ld",&(options.timeout));
-            i++;
+            i += 2;
         }
         else if (strcmp(argv[i],"-e") == 0) {
             options.exitcode = true;
