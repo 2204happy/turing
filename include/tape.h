@@ -10,3 +10,5 @@ char* createTape();
 char* readTape(char* filename);
 
 void writeTape(char* filename, char* tape);
+
+void printTape(char* tape);

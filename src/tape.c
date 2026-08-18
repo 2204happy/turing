@@ -4,33 +4,14 @@
 
 #include <tape.h>
 
-void cleanTape(char* tape) {
+
+void fromString(char* tape) {
     for (int i = 0; tape[i] != 0; i++) {
         tape[i] = (tape[i] == '!' || tape[i] == '\n') ? 0 : tape[i];
     }
 }
 
-char* createTape() {
-    char* tape = malloc(TAPE_SIZE);
-    memset(tape,0,TAPE_SIZE);
-    printf("Tape input (use '!' for blank character):");
-    fgets(tape,TAPE_SIZE,stdin);
-    cleanTape(tape);
-    putchar('\n');
-    return tape;
-}
-
-char* readTape(char* filename) {
-    char* tape = malloc(TAPE_SIZE);
-    FILE *f = fopen(filename,"rb");
-    fread(tape,sizeof(char),TAPE_SIZE,f);
-    cleanTape(tape);
-    fclose(f);
-    return tape;
-}
-
-void writeTape(char* filename, char* tape) {
-    FILE *f = fopen(filename,"wb");
+int toString(char* tape, char* buffer) {
     int highestIndex = 0;
     int lowestIndex = 0;
     for (int i = 0; i<TAPE_SIZE; i++) {
@@ -46,10 +27,49 @@ void writeTape(char* filename, char* tape) {
             }
         }
     }
+    int offset = 0;
     if (lowestIndex != 0) {
-        fwrite(tape+lowestIndex,sizeof(char),TAPE_SIZE-lowestIndex,f);
+        memcpy(buffer,tape+lowestIndex,TAPE_SIZE-lowestIndex);
+        offset = TAPE_SIZE-lowestIndex;
     }
-    fwrite(tape,sizeof(char),highestIndex+1,f);
-    fclose(f);
+    memcpy(buffer+offset,tape,highestIndex+1);
+    offset += highestIndex+1;
+    *(buffer+offset) = '\n';
+    offset++;
+    return offset;
 }
 
+char* createTape() {
+    char* tape = malloc(TAPE_SIZE);
+    memset(tape,0,TAPE_SIZE);
+    printf("Tape input (use '!' for blank character):");
+    fgets(tape,TAPE_SIZE,stdin);
+    fromString(tape);
+    putchar('\n');
+    return tape;
+}
+
+char* readTape(char* filename) {
+    char* tape = malloc(TAPE_SIZE);
+    FILE *f = fopen(filename,"rb");
+    fread(tape,sizeof(char),TAPE_SIZE,f);
+    fromString(tape);
+    fclose(f);
+    return tape;
+}
+
+void writeTape(char* filename, char* tape) {
+    char* buffer = malloc(TAPE_SIZE);
+    int size = toString(tape,buffer);
+    FILE *f = fopen(filename,"wb");
+    fwrite(buffer,size,1,f);
+    fclose(f);
+    free(buffer);
+}
+
+void printTape(char* tape) {
+    char* buffer = malloc(TAPE_SIZE);
+    toString(tape,buffer);
+    printf(buffer);
+    free(buffer);
+}

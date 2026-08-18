@@ -72,7 +72,8 @@ int main(int argc, char* argv[]) {
         writeTape(options.writefile,tape);
     }
     else {
-        printf("Final tape state:\n%s\n",tape);
+        printf("Final tape state:\n");
+        printTape(tape);
     }
 
     free(tape);
