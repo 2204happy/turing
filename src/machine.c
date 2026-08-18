@@ -64,14 +64,14 @@ Machine* createMachine() {
                 if (init < 0 || init >= numStates) {
                     printf("Error: no such state: %d",init);
                 }
-                else if (dir & ~32 != 'L' && dir & ~32 != 'R') {
+                else if ((dir & ~32) != 'L' && (dir & ~32) != 'R') {
                     printf("Error: invalid tape direction: %c\n",dir);
                 }
                 else if (next < 0 || next >= numStates) {
-                    printf("Error: no such state: %d",init);
+                    printf("Error: no such state: %d",next);
                 }
                 else {
-                    Direction direction = (dir & ~32 == 'R') ? RIGHT : LEFT;
+                    Direction direction = ((dir & ~32) == 'R') ? RIGHT : LEFT;
                     read = (read == '!') ? 0 : read;
                     write = (write == '!') ? 0 : write;
                     Transition* transition = &((*machine).states[init].transitions[read]);
