@@ -59,7 +59,7 @@ char* readTape(char* filename) {
 }
 
 void writeTape(char* filename, char* tape) {
-    char* buffer = malloc(TAPE_SIZE);
+    char* buffer = malloc(TAPE_SIZE+1);
     int size = toString(tape,buffer);
     FILE *f = fopen(filename,"wb");
     fwrite(buffer,size,1,f);
@@ -68,7 +68,7 @@ void writeTape(char* filename, char* tape) {
 }
 
 void printTape(char* tape) {
-    char* buffer = malloc(TAPE_SIZE);
+    char* buffer = malloc(TAPE_SIZE+1);
     toString(tape,buffer);
     printf("%s",buffer);
     free(buffer);
