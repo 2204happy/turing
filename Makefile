@@ -3,4 +3,4 @@ all:
 	gcc src/* -I include/ -o build/turing
 
 clean:
-	rm - r build/
+	rm -r build/
