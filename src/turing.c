@@ -5,14 +5,22 @@
 #include <tape.h>
 #include <options.h>
 
-bool turing(Machine* machine,char* tape, long int timeout) {
+typedef enum Result Result;
+
+enum Result {
+    ACCEPTING = 0,
+    REJECTING = 1,
+    TIMEOUT = 124
+};
+
+Result turing(Machine* machine,char* tape, long int timeout) {
     int tapeMask = TAPE_SIZE-1;
     unsigned int pointer = 0;
     State state = (*machine).states[(*machine).init];
     while (timeout != 0) {
         char in = *(tape+pointer);
         if (!state.transitions[in].defined) {
-            return state.accepting;
+            return state.accepting ? ACCEPTING : REJECTING;
         }
         Transition transition = state.transitions[in];
         *(tape+pointer) = transition.write;
@@ -21,7 +29,7 @@ bool turing(Machine* machine,char* tape, long int timeout) {
         state = (*machine).states[transition.next];
         timeout--;
     }
-    printf("Machine failed to halt before timeout\n");
+    return TIMEOUT;
 }
 
 
@@ -50,9 +58,14 @@ int main(int argc, char* argv[]) {
         tape = createTape();
     }
 
-    bool result = turing(machine,tape,options.timeout);
+    Result result = turing(machine,tape,options.timeout);
     if (!options.exitcode) {
-        printf("Machine halted on a%s state\n",result ? "n accepting" : " rejecting");
+        if (result == TIMEOUT) {
+            printf("Machine failed to halt before timeout\n");
+        }
+        else {
+            printf("Machine halted on a%s state\n",(result == ACCEPTING) ? "n accepting" : " rejecting");
+        }
     }
 
     if (options.writing) {
@@ -65,8 +78,8 @@ int main(int argc, char* argv[]) {
     free(tape);
     free(machine);
 
-    if(!result && options.exitcode) {
-        return 1;
+    if(options.exitcode) {
+        return result;
     }
     return 0;
 }

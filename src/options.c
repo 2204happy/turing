@@ -37,7 +37,7 @@ Options parseOptions(int argc, char* argv[]) {
             i++;
         }
         else if(strcmp(argv[i],"-h") == 0) {
-            printf("Command line arguments:\n -l [file]: load machine from file\n -s [file]: save machine to file\n -r [file]: read tape input from file\n -w [file]: write tape out to file\n -t [number of steps] timeout simulation after number of steps\n -e return error status code if machine does not end in an accepting state\n");
+            printf("Command line arguments:\n -l [file]: load machine from file\n -s [file]: save machine to file\n -r [file]: read tape input from file\n -w [file]: write tape out to file\n -t [number of steps] timeout simulation after number of steps\n -e return error status code if machine does not end in an accepting state or times out\n");
             options.exitcode = false;
             options.norun = true;
             i = argc;
