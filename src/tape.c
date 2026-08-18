@@ -70,6 +70,6 @@ void writeTape(char* filename, char* tape) {
 void printTape(char* tape) {
     char* buffer = malloc(TAPE_SIZE);
     toString(tape,buffer);
-    printf(buffer);
+    printf("%s",buffer);
     free(buffer);
 }
