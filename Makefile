@@ -1,2 +1,6 @@
 all:
-	gcc src/* -I include/ -o turing
+	mkdir build
+	gcc src/* -I include/ -o build/turing
+
+clean:
+	rm - r build/
