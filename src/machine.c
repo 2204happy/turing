@@ -6,23 +6,44 @@
 
 Machine* createMachine() {
     char buffer[256];
-    printf("Number of states:");
-    fgets(buffer,sizeof(buffer),stdin);
     int numStates;
-    sscanf(buffer,"%d",&numStates);
+    bool success = false;
+    while(!success) {
+        printf("Number of states:");
+        fgets(buffer,sizeof(buffer),stdin);
+        sscanf(buffer,"%d",&numStates);
+        if(numStates>0) {
+            success = true;
+        }
+        else {
+            printf("Error: Must have at least 1 state\n");
+        }
+    }
     int machineSize = sizeof(Machine)+numStates*sizeof(State);
     Machine* machine = malloc(machineSize);
     memset(machine,0,machineSize);
     (*machine).numStates = numStates;
     printf("States are 0-%d, initial state is State 0\n",(*machine).numStates - 1);
-    printf("\nList accepting states:");
-    fgets(buffer,sizeof(buffer),stdin);
-    int acc;
-    int offset = 0;
-    int size;
-    while (sscanf(buffer+offset,"%d%n",&acc,&size) == 1) {
-        (*machine).states[acc].accepting = true;
-        offset += size;
+    success = false;
+    while (!success) {
+        printf("\nList accepting states:");
+        fgets(buffer,sizeof(buffer),stdin);
+        int acc;
+        int offset = 0;
+        int size;
+        success = true;
+        while (sscanf(buffer+offset,"%d%n",&acc,&size) == 1) {
+            if (acc < 0 || acc >= numStates) {
+                printf("Error: State %d does not exist\n",acc);
+                for(int i = 0; i < numStates; i++) {
+                    (*machine).states[i].accepting = false;
+                }
+                success = false;
+                break;
+            }
+            (*machine).states[acc].accepting = true;
+            offset += size;
+        }
     }
     printf("\nEnter transitions in the following format:\n[initial state] [character to read] [character to write] [tape direction (L/R)] [new state]\nUse '!' for blank character\nLeave input blank to finish\n\n");
     bool done = false;
@@ -38,15 +59,35 @@ Machine* createMachine() {
             char write;
             char dir;
             int next;
-            sscanf(buffer,"%d %c %c %c %d",&init,&read,&write,&dir,&next);
-            Direction direction = (dir == 'R' || dir == 'r') ? RIGHT : LEFT;
-            read = (read == '!') ? 0 : read;
-            write = (write == '!') ? 0 : write;
-            Transition* transition = &((*machine).states[init].transitions[read]);
-            (*transition).defined = true;
-            (*transition).write = write;
-            (*transition).next = next;
-            (*transition).direction = direction;
+            int matches = sscanf(buffer,"%d %c %c %c %d",&init,&read,&write,&dir,&next);
+            if (matches == 5) {
+                if (init < 0 || init >= numStates) {
+                    printf("Error: no such state: %d",init);
+                }
+                else if (dir & ~32 != 'L' && dir & ~32 != 'R') {
+                    printf("Error: invalid tape direction: %c\n",dir);
+                }
+                else if (next < 0 || next >= numStates) {
+                    printf("Error: no such state: %d",init);
+                }
+                else {
+                    Direction direction = (dir & ~32 == 'R') ? RIGHT : LEFT;
+                    read = (read == '!') ? 0 : read;
+                    write = (write == '!') ? 0 : write;
+                    Transition* transition = &((*machine).states[init].transitions[read]);
+                    if ((*transition).defined) {
+                        printf("Note: Transition for state %d reading %c was already defined, overwriting\n",init,read);
+                    }
+                    (*transition).defined = true;
+                    (*transition).write = write;
+                    (*transition).next = next;
+                    (*transition).direction = direction;
+                }
+            }
+            else {
+                char *fields[] = {"initial state", "input character", "output character", "tape direction", "new state"};
+                printf("Error: invalid %s\n",fields[matches]);
+            }
         }
     }
     putchar('\n');
